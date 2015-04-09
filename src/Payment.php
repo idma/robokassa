@@ -120,15 +120,15 @@ class Payment {
      *
      * @return bool
      */
-    public function validate($data)
+    public function validate($data, $passwordType = "validation")
     {
         $this->data = $data;
-
+        $password = $this->{"{$passwordType}Password"};
         $signature = vsprintf('%s:%u:%s%s', [
             // '$OutSum:$InvId:$password[:$params]'
             $data['OutSum'],
             $data['InvId'],
-            $this->validationPassword,
+            $password,
             $this->getCustomParamsString($this->data)
         ]);
 
@@ -182,7 +182,7 @@ class Payment {
         $params = [];
 
         foreach ($source as $key => $val) {
-            if (strpos($key, 'shp_')) {
+            if (stripos($key, 'shp_') === 0) {
                 $params[$key] = $val;
             }
         }
@@ -299,5 +299,16 @@ class Payment {
         $this->data['IncCurrLabel'] = (string) $currLabel;
 
         return $this;
+    }
+    /**
+     * @param  string $name - custom param name, without shp_
+     * @return [type]       [description]
+     */
+    public function getCustomParam($name) {
+        $key = "shp_$name";
+        if(!isset($this->data[$key])) {
+            return null;
+        }
+        return $this->data[$key];
     }
 }
