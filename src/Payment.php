@@ -182,7 +182,7 @@ class Payment {
         $params = [];
 
         foreach ($source as $key => $val) {
-            if (strpos($key, 'shp_')) {
+            if (stripos($key, 'shp_') === 0) {
                 $params[$key] = $val;
             }
         }
