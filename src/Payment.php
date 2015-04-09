@@ -300,4 +300,15 @@ class Payment {
 
         return $this;
     }
+    /**
+     * @param  string $name - custom param name, without shp_
+     * @return [type]       [description]
+     */
+    public function getCustomParam($name) {
+        $key = "shp_$name";
+        if(!isset($this->data[$key])) {
+            return null;
+        }
+        return $this->data[$key];
+    }
 }
