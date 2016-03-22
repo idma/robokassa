@@ -52,9 +52,9 @@ class Payment {
         $this->validationPassword = $validationPassword;
         $this->isTestMode         = $testMode;
 
-        if ($this->isTestMode) {
-            $this->baseUrl = 'http://test.robokassa.ru/Index.aspx?';
-        }
+        // if ($this->isTestMode) {
+        //     $this->baseUrl = 'http://test.robokassa.ru/Index.aspx?';
+        // }
 
         $this->data = [
             'MerchantLogin'  => $this->login,
@@ -65,6 +65,7 @@ class Payment {
             'Encoding'       => 'utf-8',
             'Culture'        => self::CULTURE_RU,
             'IncCurrLabel'   => '',
+            'IsTest'         => $testMode ? 1 : 0
         ];
     }
 
