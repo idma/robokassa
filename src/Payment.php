@@ -346,4 +346,13 @@ class Payment {
 
         return $this;
     }
+    
+    
+    public function setEmail($email) 
+    {
+        $this->data['Email'] = $email;
+        
+        return $this;
+    }
+    
 }
