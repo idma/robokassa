@@ -52,10 +52,6 @@ class Payment {
         $this->validationPassword = $validationPassword;
         $this->isTestMode         = $testMode;
 
-        // if ($this->isTestMode) {
-        //     $this->baseUrl = 'http://test.robokassa.ru/Index.aspx?';
-        // }
-
         $this->data = [
             'MerchantLogin'  => $this->login,
             'InvId'          => null,
@@ -346,8 +342,11 @@ class Payment {
 
         return $this;
     }
-    
-    
+
+    /**
+     * @param $email
+     * @return $this
+     */
     public function setEmail($email) 
     {
         $this->data['Email'] = $email;
