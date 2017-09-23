@@ -99,7 +99,7 @@ class Payment {
         if ($this->customParams) {
             // sort params alphabetically
             ksort($this->customParams);
-            $signature .= ':' . http_build_query($this->customParams, null, ':');
+            $signature .= ':' . implode(array_map(function($key, $value){ return $key . '=' .$value; }, array_keys($this->customParams), $this->customParams), ':');
         }
 
         $this->data['SignatureValue'] = md5($signature);
@@ -212,7 +212,7 @@ class Payment {
         }
 
         ksort($params);
-        $params = http_build_query($params, null, ':');
+        $params = implode(array_map(function($key, $value){ return $key . '=' .$value; }, array_keys($params), $params), ':');
 
         return $params ? ':' . $params : '';
     }
