@@ -375,7 +375,7 @@ class Payment
      */
     public function setHashFunction($hashFunction)
     {
-        $hashFunctionsClass = new ReflectionClass('HashFunctions');
+        $hashFunctionsClass = new ReflectionClass(HashFunctions::class);
         $allowedHashFunctions = $hashFunctionsClass->getConstants();
 
         if (!in_array($hashFunction, $allowedHashFunctions, true)) {
