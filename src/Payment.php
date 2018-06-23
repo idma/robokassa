@@ -15,6 +15,9 @@ use Idma\Robokassa\Exception\InvalidSumException;
 use Idma\Robokassa\Exception\InvalidParamException;
 use Idma\Robokassa\Exception\InvalidInvoiceIdException;
 use Idma\Robokassa\Exception\EmptyDescriptionException;
+use Idma\Robokassa\Exception\UnsupportedHashFunctionException;
+use Idma\Robokassa\Helpers\Dictionaries\HashFunctions;
+use ReflectionClass;
 
 /**
  * Class Payment
@@ -33,6 +36,8 @@ class Payment
     private $valid = false;
     private $data;
     private $customParams = [];
+
+    private $hashFunction = HashFunctions::MD5;
 
     private $login;
     private $paymentPassword;
@@ -105,7 +110,7 @@ class Payment
                 }, array_keys($this->customParams), $this->customParams), ':');
         }
 
-        $this->data['SignatureValue'] = md5($signature);
+        $this->data['SignatureValue'] = $this->getHash($signature);
 
         $data = http_build_query($this->data, null, '&');
         $custom = http_build_query($this->customParams, null, '&');
@@ -159,7 +164,7 @@ class Payment
             $this->getCustomParamsString($this->data)
         ]);
 
-        $this->valid = (md5($signature) === strtolower($data['SignatureValue']));
+        $this->valid = ($this->getHash($signature) === strtolower($data['SignatureValue']));
 
         return $this->valid;
     }
@@ -358,6 +363,46 @@ class Payment
         $this->data['Email'] = $email;
 
         return $this;
+    }
+
+    /**
+     * Set hash function, that will be used in signature encoding.
+     *
+     * @param $hashFunction string One of HashFunctions constants
+     * @return Payment
+     *
+     * @throws UnsupportedHashFunctionException If passed hash function isn't supported by Robokassa
+     */
+    public function setHashFunction($hashFunction)
+    {
+        $hashFunctionsClass = new ReflectionClass('HashFunctions');
+        $allowedHashFunctions = $hashFunctionsClass->getConstants();
+
+        if (!in_array($hashFunction, $allowedHashFunctions, true)) {
+            throw new UnsupportedHashFunctionException();
+        }
+
+        $this->hashFunction = $hashFunction;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHashFunction()
+    {
+        return $this->hashFunction;
+    }
+
+    /**
+     * Get hash of given string, using current hash function.
+     * @param $string
+     * @return string
+     */
+    private function getHash($string)
+    {
+        return hash($this->hashFunction, $string);
     }
 
 }
