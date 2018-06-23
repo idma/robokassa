@@ -104,10 +104,8 @@ class Payment
 
         if ($this->customParams) {
             // sort params alphabetically
-            ksort($this->customParams);
-            $signature .= ':' . implode(array_map(function ($key, $value) {
-                    return $key . '=' . $value;
-                }, array_keys($this->customParams), $this->customParams), ':');
+            ksort($this->customParams, SORT_STRING);
+            $signature .= ':' . $this->buildParams($this->customParams);
         }
 
         $this->data['SignatureValue'] = $this->getHash($signature);
@@ -121,7 +119,7 @@ class Payment
     /**
      * Validates on ResultURL.
      *
-     * @param  string $data query data
+     * @param  array $data query data
      *
      * @return bool
      */
@@ -133,7 +131,7 @@ class Payment
     /**
      * Validates on SuccessURL.
      *
-     * @param  string $data query data
+     * @param  array $data query data
      *
      * @return bool
      */
@@ -145,7 +143,7 @@ class Payment
     /**
      * Validates the Robokassa query.
      *
-     * @param  string $data query data
+     * @param  array $data query data
      * @param  string $passwordType type of password, 'validation' or 'payment'
      *
      * @return bool
@@ -153,6 +151,11 @@ class Payment
     private function validate($data, $passwordType = 'validation')
     {
         $this->data = $data;
+
+        if (!isset($data['OutSum'], $data['InvId'], $data['SignatureValue'])) {
+            $this->valid = false;
+            return $this->valid;
+        }
 
         $password = $this->{$passwordType . 'Password'};
 
@@ -221,11 +224,21 @@ class Payment
         }
 
         ksort($params);
-        $params = implode(array_map(function ($key, $value) {
-            return $key . '=' . $value;
-        }, array_keys($params), $params), ':');
+        $params = $this->buildParams($params);
 
         return $params ? ':' . $params : '';
+    }
+
+    /**
+     * Build list of params.
+     * @param $params
+     * @return string
+     */
+    private function buildParams($params)
+    {
+        return implode(array_map(function ($key, $value) {
+            return $key . '=' . $value;
+        }, array_keys($params), $params), ':');
     }
 
     /**
@@ -289,9 +302,9 @@ class Payment
             $this->data['OutSum'] = $summ;
 
             return $this;
-        } else {
-            throw new InvalidSumException();
         }
+
+        throw new InvalidSumException();
     }
 
     /**
