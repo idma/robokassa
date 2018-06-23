@@ -23,13 +23,14 @@ use Idma\Robokassa\Exception\EmptyDescriptionException;
  *
  * @package Idma\Robokassa
  */
-class Payment {
+class Payment
+{
     const CULTURE_EN = 'en';
     const CULTURE_RU = 'ru';
 
-    private $baseUrl      = 'https://merchant.roboxchange.com/Index.aspx?';
-    private $isTestMode   = false;
-    private $valid        = false;
+    private $baseUrl = 'https://merchant.roboxchange.com/Index.aspx?';
+    private $isTestMode;
+    private $valid = false;
     private $data;
     private $customParams = [];
 
@@ -40,28 +41,28 @@ class Payment {
     /**
      * Class constructor.
      *
-     * @param  string $login              login of Merchant
-     * @param  string $paymentPassword    password #1
+     * @param  string $login login of Merchant
+     * @param  string $paymentPassword password #1
      * @param  string $validationPassword password #2
-     * @param  bool   $testMode           use test server
+     * @param  bool $testMode use test server
      */
     public function __construct($login, $paymentPassword, $validationPassword, $testMode = false)
     {
-        $this->login              = $login;
-        $this->paymentPassword    = $paymentPassword;
+        $this->login = $login;
+        $this->paymentPassword = $paymentPassword;
         $this->validationPassword = $validationPassword;
-        $this->isTestMode         = $testMode;
+        $this->isTestMode = $testMode;
 
         $this->data = [
-            'MerchantLogin'  => $this->login,
-            'InvId'          => null,
-            'OutSum'         => 0,
-            'Desc'           => null,
+            'MerchantLogin' => $this->login,
+            'InvId' => null,
+            'OutSum' => 0,
+            'Desc' => null,
             'SignatureValue' => '',
-            'Encoding'       => 'utf-8',
-            'Culture'        => self::CULTURE_RU,
-            'IncCurrLabel'   => '',
-            'IsTest'         => $testMode ? 1 : 0
+            'Encoding' => 'utf-8',
+            'Culture' => self::CULTURE_RU,
+            'IncCurrLabel' => '',
+            'IsTest' => $testMode ? 1 : 0
         ];
     }
 
@@ -99,12 +100,14 @@ class Payment {
         if ($this->customParams) {
             // sort params alphabetically
             ksort($this->customParams);
-            $signature .= ':' . implode(array_map(function($key, $value){ return $key . '=' .$value; }, array_keys($this->customParams), $this->customParams), ':');
+            $signature .= ':' . implode(array_map(function ($key, $value) {
+                    return $key . '=' . $value;
+                }, array_keys($this->customParams), $this->customParams), ':');
         }
 
         $this->data['SignatureValue'] = md5($signature);
 
-        $data   = http_build_query($this->data, null, '&');
+        $data = http_build_query($this->data, null, '&');
         $custom = http_build_query($this->customParams, null, '&');
 
         return $this->baseUrl . $data . ($custom ? '&' . $custom : '');
@@ -137,7 +140,7 @@ class Payment {
     /**
      * Validates the Robokassa query.
      *
-     * @param  string $data         query data
+     * @param  string $data query data
      * @param  string $passwordType type of password, 'validation' or 'payment'
      *
      * @return bool
@@ -197,7 +200,8 @@ class Payment {
     /**
      * @return string
      */
-    public function getSuccessAnswer() {
+    public function getSuccessAnswer()
+    {
         return 'OK' . $this->getInvoiceId() . "\n";
     }
 
@@ -212,7 +216,9 @@ class Payment {
         }
 
         ksort($params);
-        $params = implode(array_map(function($key, $value){ return $key . '=' .$value; }, array_keys($params), $params), ':');
+        $params = implode(array_map(function ($key, $value) {
+            return $key . '=' . $value;
+        }, array_keys($params), $params), ':');
 
         return $params ? ':' . $params : '';
     }
@@ -220,7 +226,7 @@ class Payment {
     /**
      * Get custom parameter from payment data.
      *
-     * @param  string  $name  parameter name without "shp_"
+     * @param  string $name parameter name without "shp_"
      *
      * @return mixed
      */
@@ -250,7 +256,7 @@ class Payment {
      */
     public function setInvoiceId($id)
     {
-        $this->data['InvId'] = (int) $id;
+        $this->data['InvId'] = (int)$id;
 
         return $this;
     }
@@ -298,7 +304,7 @@ class Payment {
      */
     public function setDescription($description)
     {
-        $this->data['Desc'] = (string) $description;
+        $this->data['Desc'] = (string)$description;
 
         return $this;
     }
@@ -318,7 +324,7 @@ class Payment {
      */
     public function setCulture($culture = self::CULTURE_RU)
     {
-        $this->data['Culture'] = (string) $culture;
+        $this->data['Culture'] = (string)$culture;
 
         return $this;
     }
@@ -338,7 +344,7 @@ class Payment {
      */
     public function setCurrencyLabel($currLabel)
     {
-        $this->data['IncCurrLabel'] = (string) $currLabel;
+        $this->data['IncCurrLabel'] = (string)$currLabel;
 
         return $this;
     }
@@ -347,11 +353,11 @@ class Payment {
      * @param $email
      * @return $this
      */
-    public function setEmail($email) 
+    public function setEmail($email)
     {
         $this->data['Email'] = $email;
-        
+
         return $this;
     }
-    
+
 }
