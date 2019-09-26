@@ -88,7 +88,7 @@ class Payment {
             throw new InvalidInvoiceIdException();
         }
 
-        $signature = vsprintf('%s:%01.2f:%u:%s', [
+        $signature = vsprintf('%s:%01.2F:%u:%s', [
             // '$login:$OutSum:$InvId:$passwordPayment'
             $this->login,
             $this->data['OutSum'],
