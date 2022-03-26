@@ -28,7 +28,7 @@ class Payment
     const CULTURE_EN = 'en';
     const CULTURE_RU = 'ru';
 
-    private $baseUrl = 'https://merchant.roboxchange.com/Index.aspx?';
+    private $baseUrl = 'https://auth.robokassa.ru/Merchant/Index.aspx?';
     private $valid = false;
     private $data;
     private $isTestMode;
