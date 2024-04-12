@@ -32,6 +32,24 @@ $payment
 // redirect to payment url
 $user->redirect($payment->getPaymentUrl());
 ```
+For pointining nomenclatures data:
+```php
+// for details - https://docs.robokassa.ru/fiscalization/
+$receiptData = array(
+    'items' => array([
+        'sum' => $sum,
+        'name' => 'name of order',
+        'quantity' => 1,
+        'tax' => 'none',
+    ])
+);
+$payment
+    ->setInvoiceId($order->id)
+    ->setSum($order->amount)
+    ->setDescription('Payment for some goods')
+    ->addReceiptData($receiptData);
+
+...
 
 Check payment result:
 ```php
