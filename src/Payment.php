@@ -15,6 +15,7 @@ use Idma\Robokassa\Exception\InvalidSumException;
 use Idma\Robokassa\Exception\InvalidParamException;
 use Idma\Robokassa\Exception\InvalidInvoiceIdException;
 use Idma\Robokassa\Exception\EmptyDescriptionException;
+use Idma\Robokassa\Exception\ReceiptDataException;
 
 /**
  * Class Payment
@@ -33,6 +34,7 @@ class Payment
     private $data;
     private $isTestMode;
     private $customParams = [];
+    private $receiptData = null;
 
     private $login;
     private $paymentPassword;
@@ -62,7 +64,7 @@ class Payment
             'Encoding' => 'utf-8',
             'Culture' => self::CULTURE_RU,
             'IncCurrLabel' => '',
-            'IsTest' => $testMode ? 1 : 0
+            'IsTest' => $testMode ? 1 : 0,
         ];
     }
 
@@ -88,14 +90,23 @@ class Payment
         if ($this->data['InvId'] <= 0) {
             throw new InvalidInvoiceIdException();
         }
+        $signature = isset($this->data['Receipt']) ?
+            vsprintf('%s:%01.2F:%u:%s:%s', [
+                    // '$login:$OutSum:$InvId:Receipt:$passwordPayment'
+                    $this->login,
+                    $this->data['OutSum'],
+                    $this->data['InvId'],
+                    urlencode(json_encode($this->data['Receipt'])),
+                    $this->paymentPassword
+                ]):
 
-        $signature = vsprintf('%s:%01.2F:%u:%s', [
-            // '$login:$OutSum:$InvId:$passwordPayment'
-            $this->login,
-            $this->data['OutSum'],
-            $this->data['InvId'],
-            $this->paymentPassword
-        ]);
+            vsprintf('%s:%01.2F:%u:%s', [
+                    // '$login:$OutSum:$InvId:$passwordPayment'
+                    $this->login,
+                    $this->data['OutSum'],
+                    $this->data['InvId'],
+                    $this->paymentPassword
+                ]);
 
         if ($this->customParams) {
             // sort params alphabetically
@@ -185,7 +196,7 @@ class Payment
      * @throws InvalidParamException if params is not an array
      *
      */
-    public function addCustomParameters($params)
+    public function addCustomParameters($params): self
     {
         if (!is_array($params)) {
             throw new InvalidParamException();
@@ -195,6 +206,25 @@ class Payment
             $this->customParams['shp_' . $key] = $val;
         }
 
+        return $this;
+    }
+
+    public function addReceiptData(array $receiptData): self
+    {
+        if (!isset($receiptData['items']))
+            throw new ReceiptDataException();
+
+        foreach ($receiptData['items'] as $items => $item)
+
+        if (
+            !isset($item['sum']) ||
+            !isset($item['name']) ||
+            !isset($item['quantity']) ||
+            !isset($item['tax']))
+                throw new ReceiptDataException();
+
+        $this->receiptData = $receiptData;
+        $this->data['Recipt'] = $this->receiptData;
         return $this;
     }
 
@@ -256,7 +286,7 @@ class Payment
      *
      * @return Payment
      */
-    public function setInvoiceId($id)
+    public function setInvoiceId($id): self
     {
         $this->data['InvId'] = (int)$id;
 
@@ -278,7 +308,7 @@ class Payment
      * @throws InvalidSumException
      *
      */
-    public function setSum($summ)
+    public function setSum($summ): self
     {
         $summ = number_format($summ, 2, '.', '');
 
@@ -304,7 +334,7 @@ class Payment
      *
      * @return Payment
      */
-    public function setDescription($description)
+    public function setDescription($description): self
     {
         $this->data['Desc'] = (string)$description;
 
@@ -324,7 +354,7 @@ class Payment
      *
      * @return Payment
      */
-    public function setCulture($culture = self::CULTURE_RU)
+    public function setCulture($culture = self::CULTURE_RU): self
     {
         $this->data['Culture'] = (string)$culture;
 
@@ -344,7 +374,7 @@ class Payment
      *
      * @return Payment
      */
-    public function setCurrencyLabel($currLabel)
+    public function setCurrencyLabel($currLabel): self
     {
         $this->data['IncCurrLabel'] = (string)$currLabel;
 
@@ -355,7 +385,7 @@ class Payment
      * @param $email
      * @return $this
      */
-    public function setEmail($email)
+    public function setEmail($email): self
     {
         $this->data['Email'] = $email;
 
