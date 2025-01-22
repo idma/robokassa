@@ -119,6 +119,10 @@ class Payment
 
         $this->data['SignatureValue'] = md5($signature);
 
+        if (isset($this->data['Receipt'])) {
+            $this->data['Receipt'] = urlencode(urlencode(json_encode($this->data['Receipt'])));
+        }
+
         $data = http_build_query($this->data, null, '&');
         $custom = http_build_query($this->customParams, null, '&');
 
@@ -224,7 +228,7 @@ class Payment
                 throw new ReceiptDataException();
 
         $this->receiptData = $receiptData;
-        $this->data['Recipt'] = $this->receiptData;
+        $this->data['Receipt'] = $this->receiptData;
         return $this;
     }
 
