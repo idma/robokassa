@@ -123,8 +123,8 @@ class Payment
             $this->data['Receipt'] = urlencode(urlencode(json_encode($this->data['Receipt'])));
         }
 
-        $data = http_build_query($this->data, null, '&');
-        $custom = http_build_query($this->customParams, null, '&');
+        $data = http_build_query($this->data, '', '&');
+        $custom = http_build_query($this->customParams, '', '&');
 
         return $this->baseUrl . $data . ($custom ? '&' . $custom : '');
     }
