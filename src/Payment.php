@@ -132,7 +132,7 @@ class Payment
     /**
      * Validates on ResultURL.
      *
-     * @param string $data query data
+     * @param array $data query data
      *
      * @return bool
      */
@@ -144,7 +144,7 @@ class Payment
     /**
      * Validates on SuccessURL.
      *
-     * @param string $data query data
+     * @param array $data query data
      *
      * @return bool
      */
@@ -156,7 +156,7 @@ class Payment
     /**
      * Validates the Robokassa query.
      *
-     * @param string $data query data
+     * @param array $data query data
      * @param string $passwordType type of password, 'validation' or 'payment'
      *
      * @return bool
